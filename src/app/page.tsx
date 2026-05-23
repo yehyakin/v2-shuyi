@@ -382,25 +382,28 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* ═══ 风格选择 ═══ */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-5 mb-4 shadow-sm">
-          <div className="flex items-center gap-2 mb-4">
-            <Icon name="sparkles" size={18} />
-            <h2 className="text-[15px] font-semibold text-gray-900 m-0">选择风格</h2>
-          </div>
-          <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-11 gap-2">
-            {STYLES.map(style => (
-              <button key={style.id}
-                onClick={() => setSelectedStyle(selectedStyle === style.id ? null : style.id)}
-                className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all cursor-pointer text-center
-                  ${selectedStyle === style.id
-                    ? "border-cyan-500 bg-cyan-50 text-cyan-700"
-                    : "border-gray-100 bg-gray-50 text-gray-600 hover:border-gray-200 hover:bg-gray-100"}`}>
-                <span className="text-2xl">{style.emoji}</span>
-                <span className="text-[11px] font-semibold leading-tight">{style.name}</span>
-                <span className="text-[9px] text-gray-400 leading-tight hidden md:block">{style.desc}</span>
-              </button>
-            ))}
+        {/* ═══ 风格选择（下拉式） ═══ */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-4 mb-4 shadow-sm">
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="text-[13px] text-gray-500 shrink-0">风格：</span>
+            <div className="relative">
+              <select
+                value={selectedStyle || ""}
+                onChange={e => setSelectedStyle(e.target.value ? Number(e.target.value) : null)}
+                className="appearance-none pl-3 pr-8 py-2 bg-gray-50 border border-gray-200 rounded-xl text-[13px] text-gray-700 cursor-pointer focus:outline-none focus:border-cyan-400 min-w-[200px]"
+              >
+                <option value="">— 选择风格 —</option>
+                {STYLES.map(s => (
+                  <option key={s.id} value={s.id}>{s.emoji} {s.name}</option>
+                ))}
+              </select>
+              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">▾</span>
+            </div>
+            {selectedStyle && (
+              <span className="text-[12px] text-cyan-600 bg-cyan-50 px-2 py-1 rounded-lg">
+                {STYLES.find(s => s.id === selectedStyle)?.emoji} {STYLES.find(s => s.id === selectedStyle)?.name}
+              </span>
+            )}
           </div>
         </div>
 
