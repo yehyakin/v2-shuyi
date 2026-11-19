@@ -50,13 +50,14 @@ export default function CodexHermesPage() {
   const [messages, setMessages] = useState<CommMessage[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchMessages = useCallback(async () => {
-    try {
-      const res = await fetch(`${API}/comm/messages?limit=50`, { cache: "no-store" });
-      const json = await res.json();
-      setMessages(Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : []);
-    } catch (e) { console.error(e); }
-    setLoading(false);
+  const fetchMessages = useCallback(() => {
+    return fetch(`${API}/comm/messages?limit=50`, { cache: "no-store" })
+      .then(res => res.json())
+      .then(json => {
+        setMessages(Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : []);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
   useEffect(() => { fetchMessages(); const id = setInterval(fetchMessages, 10000); return () => clearInterval(id); }, [fetchMessages]);
 

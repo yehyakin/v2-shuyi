@@ -44,13 +44,14 @@ export default function RisksPage() {
   const [risks, setRisks] = useState<Risk[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchRisks = useCallback(async () => {
-    try {
-      const res = await fetch(`${API}/risks`, { cache: "no-store" });
-      const json = await res.json();
-      setRisks(Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : []);
-    } catch (e) { console.error(e); }
-    setLoading(false);
+  const fetchRisks = useCallback(() => {
+    return fetch(`${API}/risks`, { cache: "no-store" })
+      .then(res => res.json())
+      .then(json => {
+        setRisks(Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : []);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
   useEffect(() => { fetchRisks(); const id = setInterval(fetchRisks, 10000); return () => clearInterval(id); }, [fetchRisks]);
 

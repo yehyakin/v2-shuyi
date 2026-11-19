@@ -44,13 +44,14 @@ export default function AgentsPage() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchAgents = useCallback(async () => {
-    try {
-      const res = await fetch(`${API}/agents`, { cache: "no-store" });
-      const json = await res.json();
-      setAgents(Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : []);
-    } catch (e) { console.error(e); }
-    setLoading(false);
+  const fetchAgents = useCallback(() => {
+    return fetch(`${API}/agents`, { cache: "no-store" })
+      .then(res => res.json())
+      .then(json => {
+        setAgents(Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : []);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
   useEffect(() => { fetchAgents(); const id = setInterval(fetchAgents, 10000); return () => clearInterval(id); }, [fetchAgents]);
 

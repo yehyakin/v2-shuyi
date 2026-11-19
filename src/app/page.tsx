@@ -250,8 +250,8 @@ export default function HomePage() {
 
       setImageResults(prev => [{ url: resultUrl }, ...prev]);
       setSelectedStyle(null); // reset
-    } catch (err: any) {
-      setError(`生成失败: ${err.message}`);
+    } catch (err: unknown) {
+      setError(`生成失败: ${(err instanceof Error ? err.message : String(err))}`);
     }
     setGenerating(false);
   };
@@ -295,18 +295,19 @@ export default function HomePage() {
           attempts++;
         }
       }
-    } catch (err: any) {
-      setError(`视频生成失败: ${err.message}`);
+    } catch (err: unknown) {
+      setError(`视频生成失败: ${(err instanceof Error ? err.message : String(err))}`);
     }
     setGeneratingVideo(null);
   };
 
-  const fetchTasks = useCallback(async () => {
-    try {
-      const res = await fetch(`${API}/tasks?limit=6`, { cache: "no-store" });
-      const json = await res.json();
-      setTasks(Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : []);
-    } catch (e) { /* */ }
+  const fetchTasks = useCallback(() => {
+    return fetch(`${API}/tasks?limit=6`, { cache: "no-store" })
+      .then(res => res.json())
+      .then(json => {
+        setTasks(Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : []);
+      })
+      .catch(() => {});
   }, []);
   useEffect(() => { fetchTasks(); }, [fetchTasks]);
 

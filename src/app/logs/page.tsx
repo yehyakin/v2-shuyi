@@ -40,21 +40,22 @@ export default function LogsPage() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchLogs = useCallback(async () => {
-    try {
-      const res = await fetch(`${API}/tasks?limit=100`, { cache: "no-store" }); // fallback — no dedicated /logs endpoint visible
-      const json = await res.json();
-      const data = Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : [];
-      // Adapt task list as log entries
-      setLogs(data.map((t: Record<string, unknown>) => ({
-        id: t.id as string,
-        level: t.status as string || "info",
-        message: (t.task_id as string) || (t.id as string),
-        task_id: t.task_id as string,
-        created_at: t.created_at as string,
+  const fetchLogs = useCallback(() => {
+    return fetch(`${API}/tasks?limit=100`, { cache: "no-store" }) // fallback — no dedicated /logs endpoint visible
+      .then(res => res.json())
+      .then(json => {
+        const data = Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : [];
+        // Adapt task list as log entries
+        setLogs(data.map((t: Record<string, unknown>) => ({
+          id: t.id as string,
+          level: t.status as string || "info",
+          message: (t.task_id as string) || (t.id as string),
+          task_id: t.task_id as string,
+          created_at: t.created_at as string,
       })));
-    } catch (e) { console.error(e); }
-    setLoading(false);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
   useEffect(() => { fetchLogs(); }, [fetchLogs]);
 

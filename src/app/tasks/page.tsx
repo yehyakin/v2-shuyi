@@ -41,13 +41,14 @@ export default function TasksPage() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterRisk, setFilterRisk] = useState("all");
 
-  const fetchTasks = useCallback(async () => {
-    try {
-      const res = await fetch(`${API}/tasks?limit=100`, { cache: "no-store" });
-      const json = await res.json();
-      setTasks(Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : []);
-    } catch (e) { /* */ }
-    setLoading(false);
+  const fetchTasks = useCallback(() => {
+    return fetch(`${API}/tasks?limit=100`, { cache: "no-store" })
+      .then(res => res.json())
+      .then(json => {
+        setTasks(Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : []);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
   useEffect(() => { fetchTasks(); const id = setInterval(fetchTasks, 10000); return () => clearInterval(id); }, [fetchTasks]);
 
