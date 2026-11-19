@@ -58,8 +58,8 @@ export default function InspirationPage() {
       const data = await res.json();
       const content = data.choices?.[0]?.message?.content || "分析失败";
       setAnalysis(prev => ({ ...prev, [id]: content }));
-    } catch (e: any) {
-      setAnalysis(prev => ({ ...prev, [id]: `分析失败: ${e.message}` }));
+    } catch (e: unknown) {
+      setAnalysis(prev => ({ ...prev, [id]: `分析失败: ${(e instanceof Error ? e.message : String(e))}` }));
     }
     setAnalyzing(null);
   };

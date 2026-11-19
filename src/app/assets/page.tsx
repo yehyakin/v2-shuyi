@@ -33,13 +33,14 @@ export default function AssetsPage() {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<string>("all");
 
-  const fetchAssets = useCallback(async () => {
-    try {
-      const resp = await fetch(`${API}/assets?limit=50`, { cache: "no-store" });
-      const json = await resp.json();
-      setAssets(Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : []);
-    } catch (e) { console.error(e); }
-    setLoading(false);
+  const fetchAssets = useCallback(() => {
+    return fetch(`${API}/assets?limit=50`, { cache: "no-store" })
+      .then(resp => resp.json())
+      .then(json => {
+        setAssets(Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : []);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
   useEffect(() => { fetchAssets(); }, [fetchAssets]);
 

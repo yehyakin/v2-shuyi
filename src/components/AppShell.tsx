@@ -65,7 +65,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const shellRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { setMobileOpen(false); }, [pathname]);
+  const [previousPathname, setPreviousPathname] = useState(pathname);
+  if (pathname !== previousPathname) {
+    setPreviousPathname(pathname);
+    setMobileOpen(false);
+  }
 
   const activeLabel = NAV_SECTIONS.flatMap(s => s.items).find(i => isActive(pathname, i.href))?.label ?? "视频营销Agent";
 

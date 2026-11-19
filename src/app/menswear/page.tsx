@@ -49,21 +49,23 @@ export default function MenswearPage() {
   const [analyzing, setAnalyzing] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
 
-  const fetchAssets = useCallback(async () => {
-    try {
-      const res = await fetch(`${API}/assets/list`, { cache: "no-store" });
-      const json = await res.json();
-      setAssets(Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : []);
-    } catch (e) { /* */ }
-    setLoading(false);
+  const fetchAssets = useCallback(() => {
+    return fetch(`${API}/assets/list`, { cache: "no-store" })
+      .then(res => res.json())
+      .then(json => {
+        setAssets(Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : []);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
-  const fetchWorkflows = useCallback(async () => {
-    try {
-      const res = await fetch(`${API}/workflow/monitor/menswear`);
-      const json = await res.json();
-      setWorkflows(Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : []);
-    } catch (e) { /* */ }
+  const fetchWorkflows = useCallback(() => {
+    return fetch(`${API}/workflow/monitor/menswear`)
+      .then(res => res.json())
+      .then(json => {
+        setWorkflows(Array.isArray(json?.data) ? json.data : Array.isArray(json) ? json : []);
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => { fetchAssets(); fetchWorkflows(); }, [fetchAssets, fetchWorkflows]);
@@ -97,7 +99,7 @@ export default function MenswearPage() {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       await fetchAssets();
       if (fileInput.current) fileInput.current.value = "";
-    } catch (e: any) { setError(e.message); }
+    } catch (e: unknown) { setError((e instanceof Error ? e.message : String(e))); }
     setUploading(false);
   };
 
@@ -116,7 +118,7 @@ export default function MenswearPage() {
       });
       const data = await res.json();
       setAiAnalysis(data.choices?.[0]?.message?.content || "分析失败");
-    } catch (e: any) { setAiAnalysis(`分析失败: ${e.message}`); }
+    } catch (e: unknown) { setAiAnalysis(`分析失败: ${(e instanceof Error ? e.message : String(e))}`); }
     setAnalyzing(false);
   };
 
@@ -135,7 +137,7 @@ export default function MenswearPage() {
       const wf = (json?.data || json) as Workflow;
       if (wf.workflow_id) { setPollingId(wf.workflow_id); await fetchWorkflows(); }
       else setError(json?.error || "提交失败");
-    } catch (e: any) { setError(e.message); }
+    } catch (e: unknown) { setError((e instanceof Error ? e.message : String(e))); }
     setSubmitting(false);
   };
 
@@ -197,7 +199,7 @@ export default function MenswearPage() {
                   <span className="font-semibold">AI：</span>{aiAnalysis}
                 </div>
               ) : (
-                <p className="text-[12px] text-gray-400">点击"分析图片"让 AI 识别服装特征并推荐搭配方案</p>
+                <p className="text-[12px] text-gray-400">点击&quot;分析图片&quot;让 AI 识别服装特征并推荐搭配方案</p>
               )}
             </div>
           )}

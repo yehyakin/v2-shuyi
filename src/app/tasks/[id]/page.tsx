@@ -94,21 +94,22 @@ export default function TaskDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAll = useCallback(async () => {
-    const [tRes, eRes] = await Promise.allSettled([
+  const fetchAll = useCallback(() => {
+    return Promise.allSettled([
       fetch(`${API}/tasks/${encodeURIComponent(taskId)}`, { cache: "no-store" }),
       fetch(`${API}/tasks/${encodeURIComponent(taskId)}/events`, { cache: "no-store" }),
-    ]);
-    if (tRes.status === "fulfilled" && tRes.value.ok) {
-      const json = await tRes.value.json();
-      const t = getDataObject<Task>(json);
-      if (t) setTask(t); else setError("任务不存在");
-    } else setError("加载任务失败");
-    if (eRes.status === "fulfilled" && eRes.value.ok) {
-      const json = await eRes.value.json();
-      setEvents(Array.isArray(json?.events) ? json.events : Array.isArray(json) ? json : []);
-    }
-    setLoading(false);
+    ]).then(async ([tRes, eRes]) => {
+      if (tRes.status === "fulfilled" && tRes.value.ok) {
+        const json = await tRes.value.json();
+        const t = getDataObject<Task>(json);
+        if (t) setTask(t); else setError("任务不存在");
+      } else setError("加载任务失败");
+      if (eRes.status === "fulfilled" && eRes.value.ok) {
+        const json = await eRes.value.json();
+        setEvents(Array.isArray(json?.events) ? json.events : Array.isArray(json) ? json : []);
+      }
+      setLoading(false);
+    });
   }, [taskId]);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
